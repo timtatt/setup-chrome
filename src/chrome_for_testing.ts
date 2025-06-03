@@ -61,7 +61,7 @@ export type KnownGoodVersion = {
   };
 };
 
-const platformString = (platform: Platform): PlatformString => {
+export const platformString = (platform: Platform): PlatformString => {
   if (platform.os === OS.LINUX && platform.arch === Arch.AMD64) {
     return "linux64";
   } else if (platform.os === OS.DARWIN && platform.arch === Arch.AMD64) {

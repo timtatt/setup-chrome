@@ -11,6 +11,10 @@ export const isReleaseChannelName = (
   );
 };
 
+export const isURL = (version: string) => {
+  return version.startsWith("https://") || version.startsWith("http://");
+};
+
 type FourPartsVersion = {
   type: "four-parts";
   major: number;
@@ -33,11 +37,17 @@ type LatestVersion = {
   type: "latest";
 };
 
+type URLVersion = {
+  type: "url";
+  url: string;
+};
+
 type VersionValue =
   | FourPartsVersion
   | SnapshotVersion
   | ChannelVersion
-  | LatestVersion;
+  | LatestVersion
+  | URLVersion;
 
 class VersionSpec {
   public readonly value: VersionValue;
@@ -57,6 +67,10 @@ class VersionSpec {
 
     if (isReleaseChannelName(version)) {
       return new VersionSpec({ type: "channel", channel: version });
+    }
+
+    if (isURL(version)) {
+      return new VersionSpec({ type: "url", url: version });
     }
 
     // Assume that the snapshot version is greater than 10000 to distinguish it from the four-parts version.
@@ -182,6 +196,8 @@ class VersionSpec {
         return this.value.channel;
       case "snapshot":
         return String(this.value.snapshot);
+      case "url":
+        return this.value.url;
       case "four-parts":
         return [
           this.value.major,

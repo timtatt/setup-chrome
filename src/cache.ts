@@ -56,27 +56,35 @@ export const find = async (
     throw new Error("versionSpec parameter is required");
   }
 
-  // attempt to resolve an explicit version
-  const spec = parse(versionSpec);
   const toolPath = path.join(_getCacheDirectory(), toolName);
-  if (!fs.existsSync(toolPath)) {
-    core.debug(`Cache directory not found ${toolPath}`);
-    return undefined;
-  }
-
-  const versions = await fs.promises.readdir(toolPath);
   let cachePath: string | undefined;
-  for (const v of versions) {
-    if (!spec.satisfies(v) || spec.lt(v)) {
-      continue;
+  try {
+    // attempt to resolve an explicit version
+    const spec = parse(versionSpec);
+    if (!fs.existsSync(toolPath)) {
+      core.debug(`Cache directory not found ${toolPath}`);
+      return undefined;
     }
 
-    const p = path.join(toolPath, v, arch);
-    const markerPath = `${p}.complete`;
-    if (!fs.existsSync(p) || !fs.existsSync(markerPath)) {
-      continue;
+    const versions = await fs.promises.readdir(toolPath);
+    for (const v of versions) {
+      if (!spec.satisfies(v) || spec.lt(v)) {
+        continue;
+      }
+
+      const p = path.join(toolPath, v, arch);
+      const markerPath = `${p}.complete`;
+      if (!fs.existsSync(p) || !fs.existsSync(markerPath)) {
+        continue;
+      }
+      cachePath = p;
     }
-    cachePath = p;
+  } catch {
+    // if version is not parsable, check a single directory
+    const p = path.join(toolPath, versionSpec, arch);
+    if (fs.existsSync(p)) {
+      cachePath = p;
+    }
   }
 
   if (cachePath) {
