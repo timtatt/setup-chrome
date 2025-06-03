@@ -18,6 +18,10 @@ on:
         description: 'Chrome version to install'
         required: false
         type: string
+      chromedriver-version:
+        description: 'Chrome Driver version to install'
+        required: false
+        type: string
 
 jobs:
   build:
@@ -51,6 +55,8 @@ jobs:
         uses: ./
         with:
           chrome-version: ${{ inputs.chrome-version }}
+          install-chromedriver: true
+          chromedriver-version: ${{ inputs.chromedriver-version }}
         id: setup-chrome
       - if: runner.os == 'Linux' || runner.os == 'macOS'
         run: |

@@ -19,6 +19,9 @@ inputs:
     description: |-
       Do not use sudo to install Google Chrome/Chromium (Linux only).
     default: false
+  chromedriver-version:
+    description: 'Chrome Driver version to install'
+    required: false
 outputs:
   chrome-version:
     description: 'The installed Google Chrome/Chromium version. Useful when given a latest version.'

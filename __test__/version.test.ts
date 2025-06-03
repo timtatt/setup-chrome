@@ -26,6 +26,7 @@ describe("parse", () => {
     ["119.x", { type: "four-parts", major: 119 }],
     ["latest", { type: "latest" }],
     ["beta", { type: "channel", channel: "beta" }],
+    ["https://foo.com", { type: "url", url: "https://foo.com" }],
     ["stable", { type: "channel", channel: "stable" }],
     ["canary", { type: "channel", channel: "canary" }],
     ["123456", { type: "snapshot", snapshot: 123456 }],

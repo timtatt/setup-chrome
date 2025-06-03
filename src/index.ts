@@ -9,6 +9,7 @@ import type { Installer } from "./installer";
 import { LatestInstaller } from "./latest_installer";
 import { OS, type Platform, getPlatform } from "./platform";
 import { SnapshotInstaller } from "./snapshot_installer";
+import { URLInstaller } from "./url_installer";
 import { parse } from "./version";
 import { KnownGoodVersionInstaller } from "./version_installer";
 
@@ -37,6 +38,10 @@ const getInstaller = (
       break;
     case "snapshot":
       return new SnapshotInstaller(platform);
+    case "url":
+      return new URLInstaller(platform, {
+        resolveBrowserVersionOnly,
+      });
     case "four-parts":
       return new KnownGoodVersionInstaller(platform, {
         resolveBrowserVersionOnly,
@@ -128,6 +133,7 @@ const testVersion = async (
 async function run(): Promise<void> {
   try {
     const version = core.getInput("chrome-version") || "latest";
+    const chromeDriverVersion = core.getInput("chromedriver-version");
     const platform = getPlatform();
     const flagInstallDependencies =
       core.getInput("install-dependencies") === "true";
@@ -157,7 +163,13 @@ async function run(): Promise<void> {
     if (flgInstallChromedriver) {
       core.info(`Setup chromedriver ${version}`);
 
-      const driverBinPath = await installDriver(installer, version);
+      const driverVersion =
+        chromeDriverVersion !== "" ? chromeDriverVersion : version;
+      const driverInstaller = getInstaller(platform, driverVersion, {
+        resolveBrowserVersionOnly,
+      });
+
+      const driverBinPath = await installDriver(driverInstaller, driverVersion);
       const actualDriverVersion = await testVersion(platform, driverBinPath);
 
       core.addPath(path.dirname(driverBinPath));
